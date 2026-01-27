@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { requireStaff } from '@/lib/auth/session';
 import { 
   findNextToCall,
   updateQueueEntryStatus 
@@ -24,6 +25,11 @@ import type { CallNextResponse } from '@/types/api.types';
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
+    // ============================================
+    // STEP 0: Require staff authentication
+    // ============================================
+    await requireStaff();
+
     // ============================================
     // STEP 1: Get serviceId from request body
     // ============================================

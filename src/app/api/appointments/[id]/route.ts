@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateOrThrow } from '@/lib/validation/validators/validate';
 import { UpdateAppointmentSchema } from '@/lib/validation/schemas/appointment.schema';
+import { getCurrentUser } from '@/lib/auth/session';
 import { 
   findAppointmentById, 
   updateAppointment,
@@ -36,6 +37,12 @@ export async function GET(
   { params }: RouteParams
 ): Promise<NextResponse> {
   try {
+    // Require authentication
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const appointment = await findAppointmentById(params.id);
 
     if (!appointment) {
@@ -44,6 +51,14 @@ export async function GET(
         'Appointment',
         params.id
       );
+    }
+
+    // Check ownership or staff access
+    const isOwner = appointment.customerEmail === user.email;
+    const isStaff = user.role === 'STAFF' || user.role === 'ADMIN';
+    
+    if (!isOwner && !isStaff) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     return NextResponse.json({ appointment }, { status: 200 });
@@ -72,6 +87,15 @@ export async function PATCH(
   { params }: RouteParams
 ): Promise<NextResponse> {
   try {
+    // Require staff authentication
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    if (user.role !== 'STAFF' && user.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Staff access required' }, { status: 403 });
+    }
+
     // ============================================
     // STEP 1: Validate request body
     // ============================================
@@ -159,6 +183,12 @@ export async function DELETE(
   { params }: RouteParams
 ): Promise<NextResponse> {
   try {
+    // Require authentication
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     // ============================================
     // STEP 1: Get current appointment
     // ============================================
@@ -170,6 +200,14 @@ export async function DELETE(
         'Appointment',
         params.id
       );
+    }
+
+    // Check ownership or staff access
+    const isOwner = appointment.customerEmail === user.email;
+    const isStaff = user.role === 'STAFF' || user.role === 'ADMIN';
+    
+    if (!isOwner && !isStaff) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     // ============================================
