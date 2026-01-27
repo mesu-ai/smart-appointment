@@ -14,18 +14,11 @@ import {
   findQueueEntryById, 
   updateQueueEntry,
   updateQueueEntryStatus,
-  deleteQueueEntry 
 } from '@/lib/db/models/queue-entry.model';
 import { handleError } from '@/lib/utils/error.utils';
 import { ResourceNotFoundError, DomainInvariantViolationError } from '@/types/error.types';
 import type { UpdateQueueEntryResponse } from '@/types/api.types';
 import type { QueueStatus } from '@/types/domain.types';
-
-interface RouteParams {
-  params: {
-    id: string;
-  };
-}
 
 /**
  * GET /api/queue/:id
@@ -33,23 +26,25 @@ interface RouteParams {
  * Get queue entry by ID.
  */
 export async function GET(
-  request: NextRequest,
-  { params }: RouteParams
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
+    const { id } = await params;
+    
     // Require authentication
     const user = await getCurrentUser();
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const queueEntry = await findQueueEntryById(params.id);
+    const queueEntry = await findQueueEntryById(id);
 
     if (!queueEntry) {
       throw new ResourceNotFoundError(
         'Queue entry not found',
         'QueueEntry',
-        params.id
+        id
       );
     }
 
@@ -83,9 +78,11 @@ export async function GET(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: RouteParams
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
+    const { id } = await params;
+    
     // Require staff authentication
     const user = await getCurrentUser();
     if (!user) {
@@ -104,13 +101,13 @@ export async function PATCH(
     // ============================================
     // STEP 2: Get current queue entry
     // ============================================
-    const currentEntry = await findQueueEntryById(params.id);
+    const currentEntry = await findQueueEntryById(id);
 
     if (!currentEntry) {
       throw new ResourceNotFoundError(
         'Queue entry not found',
         'QueueEntry',
-        params.id
+        id
       );
     }
 
@@ -142,11 +139,11 @@ export async function PATCH(
     let updatedEntry;
 
     if (validatedData.status) {
-      updatedEntry = await updateQueueEntryStatus(params.id, validatedData.status);
+      updatedEntry = await updateQueueEntryStatus(id, validatedData.status);
     }
 
     if (validatedData.position !== undefined) {
-      updatedEntry = await updateQueueEntry(params.id, {
+      updatedEntry = await updateQueueEntry(id, {
         $set: { position: validatedData.position },
       });
     }
@@ -176,10 +173,12 @@ export async function PATCH(
  * Leave queue (soft delete) by setting status to CANCELLED.
  */
 export async function DELETE(
-  request: NextRequest,
-  { params }: RouteParams
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
+    const { id } = await params;
+    
     // Require authentication
     const user = await getCurrentUser();
     if (!user) {
@@ -189,13 +188,13 @@ export async function DELETE(
     // ============================================
     // STEP 1: Get current queue entry
     // ============================================
-    const queueEntry = await findQueueEntryById(params.id);
+    const queueEntry = await findQueueEntryById(id);
 
     if (!queueEntry) {
       throw new ResourceNotFoundError(
         'Queue entry not found',
         'QueueEntry',
-        params.id
+        id
       );
     }
 
@@ -227,7 +226,7 @@ export async function DELETE(
     // ============================================
     // STEP 3: Update status to CANCELLED
     // ============================================
-    const updatedEntry = await updateQueueEntryStatus(params.id, 'CANCELLED');
+    const updatedEntry = await updateQueueEntryStatus(id, 'CANCELLED');
 
     if (!updatedEntry) {
       throw new Error('Failed to cancel queue entry');

@@ -15,12 +15,6 @@ import { ResourceNotFoundError } from '@/types/error.types';
 import type { GetAvailableSlotsResponse } from '@/types/api.types';
 import type { TimeSlot } from '@/types/domain.types';
 
-interface RouteParams {
-  params: {
-    id: string;
-  };
-}
-
 /**
  * GET /api/services/:id/slots?date=YYYY-MM-DD
  * 
@@ -31,9 +25,11 @@ interface RouteParams {
  */
 export async function GET(
   request: NextRequest,
-  { params }: RouteParams
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
+    const { id } = await params;
+    
     // ============================================
     // STEP 1: Validate query parameters
     // ============================================
@@ -52,13 +48,13 @@ export async function GET(
     // ============================================
     // STEP 2: Get service
     // ============================================
-    const service = await findServiceById(params.id);
+    const service = await findServiceById(id);
 
     if (!service) {
       throw new ResourceNotFoundError(
         'Service not found',
         'Service',
-        params.id
+        id
       );
     }
 
@@ -68,7 +64,7 @@ export async function GET(
     const date = new Date(validatedDate);
     const dayOfWeek = date.getDay();
     
-    const businessHours = await getServiceBusinessHours(params.id, dayOfWeek);
+    const businessHours = await getServiceBusinessHours(id, dayOfWeek);
 
     if (!businessHours || !businessHours.isOpen) {
       // Closed on this day
@@ -91,9 +87,15 @@ export async function GET(
     // ============================================
     // STEP 5: Get existing appointments for this date
     // ============================================
+    // Convert date string to Date range (start of day to end of day)
+    const startOfDay = new Date(validatedDate);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(validatedDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
     const existingAppointments = await findAppointments({
-      serviceId: params.id,
-      date: validatedDate,
+      serviceId: id,
+      date: { $gte: startOfDay, $lte: endOfDay },
       status: { $nin: ['CANCELLED', 'NO_SHOW'] },
     });
 

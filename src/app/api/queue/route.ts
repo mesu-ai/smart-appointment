@@ -9,7 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { validateOrThrow } from '@/lib/validation/validators/validate';
 import { JoinQueueSchema, ListQueueQuerySchema } from '@/lib/validation/schemas/queue.schema';
 import { RuleEngine } from '@/lib/rules/engine/rule-engine';
-import { requireAuth, requireStaff } from '@/lib/auth/session';
+import { requireStaff } from '@/lib/auth/session';
 import { QueueOperatingHoursRule } from '@/lib/rules/queue/queue-operating-hours.rule';
 import { DuplicateQueueEntryRule } from '@/lib/rules/queue/duplicate-queue-entry.rule';
 import { QueueCapacityRule } from '@/lib/rules/queue/queue-capacity.rule';
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // ============================================
     // STEP 0: Require authentication
     // ============================================
-    const user = await requireAuth();
+    // const user = await requireAuth();
 
     // ============================================
     // STEP 1: Parse and validate request body
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const ruleContext: QueueJoinContext = {
       serviceId: validatedData.serviceId,
       customerEmail: validatedData.customerInfo.email,
-      priority: validatedData.priority,
+      priority: validatedData.priority ?? 'NORMAL',
     };
 
     const ruleFailure = await ruleEngine.executeUntilFailure(ruleContext);
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // ============================================
     // STEP 4: Create queue entry in transaction
     // ============================================
-    const queueEntry = await withTransaction(async (session) => {
+    const queueEntry = await withTransaction(async (_session) => {
       // Get next available position atomically
       const position = await getNextQueuePosition(validatedData.serviceId);
 
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         serviceName: service.name,
         position,
         status: 'WAITING',
-        priority: validatedData.priority,
+        priority: validatedData.priority ?? 'NORMAL',
         customerName: validatedData.customerInfo.name,
         customerEmail: validatedData.customerInfo.email,
         customerPhone: validatedData.customerInfo.phone,

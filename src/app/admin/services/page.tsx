@@ -14,7 +14,6 @@ import { Card } from '@/components/molecules/Card';
 import { Badge } from '@/components/atoms/Badge';
 import { Input } from '@/components/atoms/Input';
 import { Select } from '@/components/atoms/Select';
-import { Alert } from '@/components/molecules/Alert';
 import { useServices } from '@/hooks/use-services';
 import { useToast } from '@/context/toast-context';
 import { Plus, Edit, Trash2, Clock, DollarSign } from 'lucide-react';

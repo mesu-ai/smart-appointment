@@ -14,18 +14,11 @@ import {
   findAppointmentById, 
   updateAppointment,
   updateAppointmentStatus,
-  deleteAppointment 
 } from '@/lib/db/models/appointment.model';
 import { handleError } from '@/lib/utils/error.utils';
 import { ResourceNotFoundError, DomainInvariantViolationError } from '@/types/error.types';
 import type { UpdateAppointmentResponse } from '@/types/api.types';
 import type { AppointmentStatus } from '@/types/domain.types';
-
-interface RouteParams {
-  params: {
-    id: string;
-  };
-}
 
 /**
  * GET /api/appointments/:id
@@ -33,8 +26,8 @@ interface RouteParams {
  * Get appointment by ID.
  */
 export async function GET(
-  request: NextRequest,
-  { params }: RouteParams
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
     // Require authentication
@@ -43,18 +36,19 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const appointment = await findAppointmentById(params.id);
+    const { id } = await params;
+    const appointment = await findAppointmentById(id);
 
     if (!appointment) {
       throw new ResourceNotFoundError(
         'Appointment not found',
         'Appointment',
-        params.id
+        id
       );
     }
 
     // Check ownership or staff access
-    const isOwner = appointment.customerEmail === user.email;
+    const isOwner = appointment.customerInfo.email === user.email;
     const isStaff = user.role === 'STAFF' || user.role === 'ADMIN';
     
     if (!isOwner && !isStaff) {
@@ -83,8 +77,8 @@ export async function GET(
  * - NO_SHOW → (no transitions allowed)
  */
 export async function PATCH(
-  request: NextRequest,
-  { params }: RouteParams
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
     // Require staff authentication
@@ -99,19 +93,20 @@ export async function PATCH(
     // ============================================
     // STEP 1: Validate request body
     // ============================================
-    const body = await request.json();
+    const body = await _request.json();
     const validatedData = validateOrThrow(UpdateAppointmentSchema, body);
 
     // ============================================
     // STEP 2: Get current appointment
     // ============================================
-    const currentAppointment = await findAppointmentById(params.id);
+    const { id } = await params;
+    const currentAppointment = await findAppointmentById(id);
 
     if (!currentAppointment) {
       throw new ResourceNotFoundError(
         'Appointment not found',
         'Appointment',
-        params.id
+        id
       );
     }
 
@@ -144,11 +139,11 @@ export async function PATCH(
     let updatedAppointment;
 
     if (validatedData.status) {
-      updatedAppointment = await updateAppointmentStatus(params.id, validatedData.status);
+      updatedAppointment = await updateAppointmentStatus(id, validatedData.status);
     }
 
     if (validatedData.notes !== undefined) {
-      updatedAppointment = await updateAppointment(params.id, {
+      updatedAppointment = await updateAppointment(id, {
         $set: { notes: validatedData.notes },
       });
     }
@@ -179,8 +174,8 @@ export async function PATCH(
  * Does not actually delete the record for audit purposes.
  */
 export async function DELETE(
-  request: NextRequest,
-  { params }: RouteParams
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
     // Require authentication
@@ -192,18 +187,19 @@ export async function DELETE(
     // ============================================
     // STEP 1: Get current appointment
     // ============================================
-    const appointment = await findAppointmentById(params.id);
+    const { id } = await params;
+    const appointment = await findAppointmentById(id);
 
     if (!appointment) {
       throw new ResourceNotFoundError(
         'Appointment not found',
         'Appointment',
-        params.id
+        id
       );
     }
 
     // Check ownership or staff access
-    const isOwner = appointment.customerEmail === user.email;
+    const isOwner = appointment.customerInfo.email === user.email;
     const isStaff = user.role === 'STAFF' || user.role === 'ADMIN';
     
     if (!isOwner && !isStaff) {
@@ -230,7 +226,7 @@ export async function DELETE(
     // ============================================
     // STEP 3: Update status to CANCELLED
     // ============================================
-    const updatedAppointment = await updateAppointmentStatus(params.id, 'CANCELLED');
+    const updatedAppointment = await updateAppointmentStatus(id, 'CANCELLED');
 
     if (!updatedAppointment) {
       throw new Error('Failed to cancel appointment');

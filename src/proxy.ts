@@ -1,5 +1,5 @@
 /**
- * Next.js Middleware for Route Protection
+ * Next.js Proxy for Route Protection
  * 
  * Protects routes based on authentication status.
  * Runs on every request before rendering pages.
@@ -37,7 +37,7 @@ function decodeSessionToken(token: string): { userId: string; createdAt: number 
   }
 }
 
-export function middleware(request: NextRequest) {
+export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Check if the route needs protection
@@ -73,7 +73,7 @@ export function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-// Configure which routes use this middleware
+// Configure which routes use this proxy
 export const config = {
   matcher: [
     /*

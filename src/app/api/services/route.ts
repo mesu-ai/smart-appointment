@@ -14,7 +14,7 @@ import type { ListServicesResponse } from '@/types/api.types';
  * 
  * List all active services available for booking.
  */
-export async function GET(request: NextRequest): Promise<NextResponse> {
+export async function GET(_request: NextRequest): Promise<NextResponse> {
   try {
     const services = await findActiveServices();
 

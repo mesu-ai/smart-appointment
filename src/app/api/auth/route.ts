@@ -78,7 +78,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: error.errors[0].message },
+        { error: error.errors[0]?.message || 'Validation error' },
         { status: 400 }
       );
     }
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
  * 
  * Logout current user.
  */
-export async function DELETE(request: NextRequest): Promise<NextResponse> {
+export async function DELETE(_request: NextRequest): Promise<NextResponse> {
   try {
     await clearSessionCookie();
 
@@ -109,7 +109,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
  * 
  * Get current user session.
  */
-export async function GET(request: NextRequest): Promise<NextResponse> {
+export async function GET(_request: NextRequest): Promise<NextResponse> {
   try {
     const user = await getCurrentUser();
 

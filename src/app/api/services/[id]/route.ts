@@ -10,29 +10,25 @@ import { handleError } from '@/lib/utils/error.utils';
 import { ResourceNotFoundError } from '@/types/error.types';
 import type { GetServiceResponse } from '@/types/api.types';
 
-interface RouteParams {
-  params: {
-    id: string;
-  };
-}
-
 /**
  * GET /api/services/:id
  * 
  * Get service by ID.
  */
 export async function GET(
-  request: NextRequest,
-  { params }: RouteParams
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
-    const service = await findServiceById(params.id);
+    const { id } = await params;
+    
+    const service = await findServiceById(id);
 
     if (!service) {
       throw new ResourceNotFoundError(
         'Service not found',
         'Service',
-        params.id
+        id
       );
     }
 

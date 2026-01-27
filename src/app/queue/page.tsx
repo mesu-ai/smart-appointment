@@ -6,7 +6,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { NavigationBar } from '@/components/organisms/NavigationBar';
 import { QueuePanel } from '@/components/organisms/QueuePanel';
 import { ServiceSelector } from '@/components/organisms/ServiceSelector';
@@ -16,7 +16,7 @@ import { Card } from '@/components/molecules/Card';
 import { Input } from '@/components/atoms/Input';
 import { Badge } from '@/components/atoms/Badge';
 import { Select } from '@/components/atoms/Select';
-import { useQueue, useJoinQueue, useLeaveQueue } from '@/hooks/use-queue';
+import { useQueue, useJoinQueue } from '@/hooks/use-queue';
 import { useServices } from '@/hooks/use-services';
 import { useToast } from '@/context/toast-context';
 import type { Service } from '@/types/domain.types';
@@ -36,7 +36,7 @@ export default function QueueStatusNew() {
   const services = servicesData?.services || [];
 
   const { data: queueData, isLoading: queueLoading } = useQueue();
-  const queueEntries = queueData?.entries || [];
+  const queueEntries = queueData?.queue || [];
 
   const joinQueueMutation = useJoinQueue();
 
@@ -54,7 +54,7 @@ export default function QueueStatusNew() {
     try {
       await joinQueueMutation.mutateAsync({
         serviceId: selectedService.id,
-        customer: {
+        customerInfo: {
           name: customerInfo.name,
           email: customerInfo.email,
           phone: customerInfo.phone,

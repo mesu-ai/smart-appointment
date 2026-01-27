@@ -6,7 +6,6 @@
 
 'use client';
 
-import React from 'react';
 import { NavigationBar } from '@/components/organisms/NavigationBar';
 import { BookingWizard } from '@/components/organisms/BookingWizard';
 

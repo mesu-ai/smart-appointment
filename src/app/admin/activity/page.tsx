@@ -6,7 +6,7 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { NavigationBar } from '@/components/organisms/NavigationBar';
 import { Text } from '@/components/atoms/Text';
 import { Button } from '@/components/atoms/Button';

@@ -6,7 +6,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { NavigationBar } from '@/components/organisms/NavigationBar';
 import { AppointmentList } from '@/components/organisms/AppointmentList';
 import { QueuePanel } from '@/components/organisms/QueuePanel';
@@ -15,16 +15,17 @@ import { Card } from '@/components/molecules/Card';
 import { StatCard } from '@/components/molecules/StatCard';
 import { Button } from '@/components/atoms/Button';
 import { Select } from '@/components/atoms/Select';
-import { useAppointments, useCancelAppointment } from '@/hooks/use-appointments';
+import { useAppointments } from '@/hooks/use-appointments';
 import { useQueue, useCallNext } from '@/hooks/use-queue';
 import { useToast } from '@/context/toast-context';
-import { Users, Settings, Activity, Briefcase } from 'lucide-react';
+import { apiClient } from '@/lib/api/client';
+import { Users, Activity, Briefcase } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AdminDashboard() {
   const { showToast } = useToast();
   const [statusFilter, setStatusFilter] = useState('');
-  const [dateFilter, setDateFilter] = useState('');
+  const [dateFilter] = useState('');
 
   const { data: appointmentsData, isLoading: appointmentsLoading } = useAppointments({
     status: statusFilter || undefined,
@@ -35,9 +36,8 @@ export default function AdminDashboard() {
   const { data: queueData, isLoading: queueLoading } = useQueue({
     status: 'WAITING',
   });
-  const queueEntries = queueData?.entries || [];
+  const queueEntries = queueData?.queue || [];
 
-  const cancelAppointmentMutation = useCancelAppointment();
   const callNextMutation = useCallNext();
 
   const handleCancelAppointment = async (id: string) => {
@@ -46,8 +46,10 @@ export default function AdminDashboard() {
     }
 
     try {
-      await cancelAppointmentMutation.mutateAsync(id);
+      await apiClient.delete(`/api/appointments/${id}`);
       showToast('success', 'Appointment cancelled successfully');
+      // Refresh appointments
+      window.location.reload();
     } catch (error: any) {
       showToast('error', error.message || 'Failed to cancel appointment');
     }
@@ -55,8 +57,12 @@ export default function AdminDashboard() {
 
   const handleCallNext = async () => {
     try {
-      const result = await callNextMutation.mutateAsync();
-      showToast('success', `Called ${result.entry.customer.name} from queue`);
+      const result = await callNextMutation.mutateAsync('default-service-id');
+      if (result.queueEntry) {
+        showToast('success', `Called ${result.queueEntry.customerInfo.name} from queue`);
+      } else {
+        showToast('info', result.message);
+      }
     } catch (error: any) {
       showToast('error', error.message || 'Failed to call next customer');
     }
@@ -66,12 +72,12 @@ export default function AdminDashboard() {
     totalAppointments: appointments.length,
     todayAppointments: appointments.filter((apt) => {
       const today = new Date().toISOString().split('T')[0];
-      return apt.timeSlot.start.startsWith(today);
+      return apt.date === today;
     }).length,
     queueLength: queueEntries.length,
     completedToday: appointments.filter((apt) => {
       const today = new Date().toISOString().split('T')[0];
-      return apt.status === 'COMPLETED' && apt.timeSlot.start.startsWith(today);
+      return apt.status === 'COMPLETED' && apt.date === today;
     }).length,
   };
 

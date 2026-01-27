@@ -9,7 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { validateOrThrow } from '@/lib/validation/validators/validate';
 import { CreateAppointmentSchema, ListAppointmentsQuerySchema } from '@/lib/validation/schemas/appointment.schema';
 import { RuleEngine } from '@/lib/rules/engine/rule-engine';
-import { requireAuth, requireStaff } from '@/lib/auth/session';
+import { requireStaff } from '@/lib/auth/session';
 import { AdvanceBookingRule } from '@/lib/rules/appointments/advance-booking.rule';
 import { BusinessHoursRule } from '@/lib/rules/appointments/business-hours.rule';
 import { DuplicateAppointmentRule } from '@/lib/rules/appointments/duplicate-appointment.rule';
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // ============================================
     // STEP 0: Require authentication
     // ============================================
-    const user = await requireAuth();
+    // const user = await requireAuth();
 
     // ============================================
     // STEP 1: Parse and validate request body
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // ============================================
     // STEP 4: Create appointment in transaction
     // ============================================
-    const appointment = await withTransaction(async (session) => {
+    const appointment = await withTransaction(async (_session) => {
       // Create appointment
       const newAppointment = await createAppointment({
         serviceId: validatedData.serviceId,

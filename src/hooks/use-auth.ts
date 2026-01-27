@@ -23,6 +23,29 @@ export function useAuth() {
     error: null,
   });
 
+  useEffect(() => {
+    let cancelled = false;
+    
+    async function fetchAuth() {
+      try {
+        const response = await apiClient.get<{ user: User }>('/api/auth');
+        if (!cancelled) {
+          setState({ user: response.user, loading: false, error: null });
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setState({ user: null, loading: false, error: null });
+        }
+      }
+    }
+    
+    fetchAuth();
+    
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const checkAuth = useCallback(async () => {
     try {
       const response = await apiClient.get<{ user: User }>('/api/auth');
@@ -31,10 +54,6 @@ export function useAuth() {
       setState({ user: null, loading: false, error: null });
     }
   }, []);
-
-  useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
 
   const logout = async () => {
     try {
