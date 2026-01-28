@@ -6,7 +6,9 @@
 
 import type { ErrorResponse } from '@/types/error.types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+// Use relative URLs for same-origin requests (no CORS issues)
+// Only set NEXT_PUBLIC_API_URL if API is on different domain
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 export class ApiError extends Error {
   constructor(
@@ -41,6 +43,7 @@ export const apiClient = {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'same-origin',
     });
     return handleResponse<T>(response);
   },
@@ -51,6 +54,7 @@ export const apiClient = {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'same-origin',
       body: data ? JSON.stringify(data) : undefined,
     });
     return handleResponse<T>(response);
@@ -62,6 +66,7 @@ export const apiClient = {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'same-origin',
       body: JSON.stringify(data),
     });
     return handleResponse<T>(response);
@@ -73,6 +78,7 @@ export const apiClient = {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'same-origin',
     });
     return handleResponse<T>(response);
   },

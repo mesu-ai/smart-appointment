@@ -13,8 +13,10 @@ const SESSION_COOKIE_NAME = 'smartqueue_session';
 // Routes that require authentication
 const protectedRoutes = [
   '/book',
+  '/book-new',
   '/queue',
-  '/admin',
+  '/queue-new',
+  '/dashboard',
 ];
 
 /**
@@ -37,39 +39,47 @@ function decodeSessionToken(token: string): { userId: string; createdAt: number 
   }
 }
 
-export default function proxy(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  
+  // Get session cookie
+  const sessionToken = request.cookies.get(SESSION_COOKIE_NAME);
+  const session = sessionToken?.value ? decodeSessionToken(sessionToken.value) : null;
+  const isAuthenticated = !!session;
 
-  // Check if the route needs protection
+  // PUBLIC ROUTES: Always allow API auth endpoints
+  if (pathname.startsWith('/api/auth')) {
+    return NextResponse.next();
+  }
+
+  // AUTHENTICATED USER GUARDS: Redirect logged-in users away from auth pages
+  if (isAuthenticated && (pathname === '/login' || pathname === '/signup')) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/dashboard';
+    return NextResponse.redirect(url);
+  }
+
+  // PUBLIC ROUTES: Allow unauthenticated access to these pages
+  if (pathname === '/' || pathname === '/login' || pathname === '/signup') {
+    return NextResponse.next();
+  }
+
+  // PROTECTED ROUTES: Check if route requires authentication
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
 
   if (!isProtectedRoute) {
     return NextResponse.next();
   }
 
-  // Get session cookie
-  const sessionToken = request.cookies.get(SESSION_COOKIE_NAME);
-
-  // If no session, redirect to login
-  if (!sessionToken?.value) {
+  // AUTHENTICATION REQUIRED: Redirect to login if not authenticated
+  if (!isAuthenticated) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     url.searchParams.set('redirect', pathname);
     return NextResponse.redirect(url);
   }
 
-  // Validate session token
-  const session = decodeSessionToken(sessionToken.value);
-  if (!session) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/login';
-    url.searchParams.set('redirect', pathname);
-    return NextResponse.redirect(url);
-  }
-
-  // For staff routes, we'll rely on client-side check since we can't easily get user role here
-  // The API routes already have proper role checks
-
+  // User is authenticated, allow access to protected route
   return NextResponse.next();
 }
 
@@ -77,13 +87,12 @@ export default function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Match all request paths except:
-     * - api (API routes)
+     * Match all page requests except:
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - public files
+     * - public folder files (images, fonts, etc.)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).)*',
+    '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 };

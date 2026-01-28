@@ -7,7 +7,7 @@ A comprehensive Next.js application for managing appointments and queues efficie
 ### 🎯 Core Features
 - **Appointment Booking System**: Schedule appointments with preferred date, time, and service
 - **Queue Management**: Join and manage queues with real-time position tracking
-- **Admin Dashboard**: Comprehensive dashboard to manage appointments and queue
+- **Dashboard**: Comprehensive dashboard to manage appointments and queue
 - **Real-time Updates**: Live queue status and position updates
 - **Multiple Services**: Support for different service types with varying durations and prices
 
@@ -57,7 +57,7 @@ npm run dev
 smart-appointment/
 ├── src/
 │   ├── app/
-│   │   ├── admin/         # Admin dashboard page
+│   │   ├── admin/         # Dashboard page
 │   │   ├── book/          # Appointment booking page
 │   │   ├── queue/         # Queue management page
 │   │   ├── layout.js      # Root layout with providers
@@ -91,7 +91,7 @@ smart-appointment/
 - Personal queue ticket view
 - Estimated wait time
 
-### 4. Admin Dashboard (`/admin`)
+### 4. Dashboard (`/dashboard`)
 - Statistics overview
 - Appointment management
 - Queue control
@@ -238,3 +238,4 @@ For issues or questions, please refer to the Next.js documentation:
 ---
 
 Built with ❤️ using Next.js and React
+

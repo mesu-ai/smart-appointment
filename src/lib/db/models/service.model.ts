@@ -82,13 +82,14 @@ export async function getServiceBusinessHours(
 
 /**
  * Seed initial services (for development)
+ * Seeds services matching PDF Section 2: Staff & Service Setup
  */
 export async function seedServices(): Promise<void> {
   const collection = await getServicesCollection();
   
   const existingCount = await collection.countDocuments();
   if (existingCount > 0) {
-    console.log('Services already seeded');
+    console.log('  ℹ️  Services already exist');
     return;
   }
 
@@ -105,26 +106,27 @@ export async function seedServices(): Promise<void> {
     { dayOfWeek: 0, isOpen: false, openTime: '00:00', closeTime: '00:00' },
   ];
 
+  // Services matching PDF requirements
   const services: Omit<ServiceDocument, '_id'>[] = [
     {
-      name: 'Haircut',
-      description: 'Professional haircut service',
+      name: 'General Consultation',
+      description: 'General consultation with our expert consultants. Perfect for initial assessments and advice.',
       duration: 30,
-      price: 25,
-      category: 'Hair',
-      maxDailyAppointments: 20,
-      maxQueueSize: 10,
+      price: 50,
+      category: 'Consultation',
+      maxDailyAppointments: 10,
+      maxQueueSize: 8,
       isActive: true,
       businessHours: defaultBusinessHours,
       createdAt: new Date(),
       updatedAt: new Date(),
     },
     {
-      name: 'Hair Coloring',
-      description: 'Full hair coloring service',
-      duration: 90,
-      price: 75,
-      category: 'Hair',
+      name: 'Medical Check-up',
+      description: 'Comprehensive medical check-up with certified doctors. Includes health assessment and diagnostics.',
+      duration: 60,
+      price: 150,
+      category: 'Medical',
       maxDailyAppointments: 8,
       maxQueueSize: 5,
       isActive: true,
@@ -133,26 +135,13 @@ export async function seedServices(): Promise<void> {
       updatedAt: new Date(),
     },
     {
-      name: 'Beard Trim',
-      description: 'Professional beard trimming and styling',
-      duration: 15,
-      price: 15,
-      category: 'Grooming',
-      maxDailyAppointments: 30,
-      maxQueueSize: 15,
-      isActive: true,
-      businessHours: defaultBusinessHours,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      name: 'Consultation',
-      description: 'Free consultation for new clients',
+      name: 'Customer Support',
+      description: 'Quick customer support session for inquiries, issues, and general assistance.',
       duration: 15,
       price: 0,
-      category: 'Consultation',
-      maxDailyAppointments: 10,
-      maxQueueSize: 5,
+      category: 'Support',
+      maxDailyAppointments: 20,
+      maxQueueSize: 15,
       isActive: true,
       businessHours: defaultBusinessHours,
       createdAt: new Date(),
@@ -161,5 +150,5 @@ export async function seedServices(): Promise<void> {
   ];
 
   await collection.insertMany(services as ServiceDocument[]);
-  console.log(`✅ Seeded ${services.length} services`);
+  console.log(`  ✅ Seeded ${services.length} services (General Consultation, Medical Check-up, Customer Support)`);
 }

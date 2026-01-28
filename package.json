@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "setup-db": "node scripts/setup-db.js",
+    "seed": "node scripts/seed.js",
     "test": "vitest",
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
@@ -30,10 +32,12 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "20.19.30",
     "@types/react": "19.2.9",
+    "dotenv": "^17.2.3",
     "eslint": "^9",
     "eslint-config-next": "16.1.4",
     "mongodb-memory-server": "^9.1.4",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "typescript": "^5.3.3",
     "vitest": "^1.1.1"
   }

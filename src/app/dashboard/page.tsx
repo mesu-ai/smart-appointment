@@ -91,7 +91,7 @@ export default function AdminDashboard() {
 
         {/* Management Quick Links */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Link href="/admin/services">
+          <Link href="/dashboard/services">
             <Card className="cursor-pointer hover:shadow-lg transition-shadow">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -107,7 +107,7 @@ export default function AdminDashboard() {
             </Card>
           </Link>
 
-          <Link href="/admin/staff">
+          <Link href="/dashboard/staff">
             <Card className="cursor-pointer hover:shadow-lg transition-shadow">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -123,7 +123,7 @@ export default function AdminDashboard() {
             </Card>
           </Link>
 
-          <Link href="/admin/activity">
+          <Link href="/dashboard/activity">
             <Card className="cursor-pointer hover:shadow-lg transition-shadow">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">

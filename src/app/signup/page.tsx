@@ -1,7 +1,7 @@
 /**
- * Login Page
+ * Signup Page
  * 
- * Purpose: User authentication with email/password
+ * Purpose: User registration with email/password
  */
 
 'use client';
@@ -17,64 +17,56 @@ import { apiClient } from '@/lib/api/client';
 import { Calendar } from 'lucide-react';
 import Link from 'next/link';
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+    name: '',
+    phone: '',
+  });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleDemoLogin = async () => {
-    setError('');
-    setLoading(true);
-
-    try {
-      const response = await apiClient.post<{ user: any; message: string }>(
-        '/api/auth',
-        { 
-          email: 'admin@smartqueue.com', 
-          password: 'admin123' 
-        }
-      );
-
-      // Redirect based on role
-      if (response.user.role === 'ADMIN' || response.user.role === 'STAFF') {
-        router.push('/dashboard');
-      } else {
-        router.push('/');
-      }
-      
-      // Force page reload to update navigation
-      window.location.reload();
-    } catch (err: any) {
-      setError(err.message || 'Demo login failed. Please run database seeding.');
-    } finally {
-      setLoading(false);
-    }
+  const handleChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // Validate password confirmation
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
     setLoading(true);
 
     try {
       const response = await apiClient.post<{ user: any; message: string }>(
-        '/api/auth',
-        { email, password }
+        '/api/auth/signup',
+        {
+          email: formData.email,
+          password: formData.password,
+          name: formData.name,
+          phone: formData.phone || undefined,
+        }
       );
 
-      // Redirect based on role
+      // Redirect based on role (new users are customers, redirect to booking)
       if (response.user.role === 'ADMIN' || response.user.role === 'STAFF') {
         router.push('/dashboard');
       } else {
-        router.push('/');
+        router.push('/book');
       }
       
       // Force page reload to update navigation
       window.location.reload();
     } catch (err: any) {
-      setError(err.message || 'Invalid email or password');
+      setError(err.message || 'Failed to create account');
     } finally {
       setLoading(false);
     }
@@ -90,14 +82,14 @@ export default function LoginPage() {
             <Text variant="h2" className="text-gray-900">SmartQueue</Text>
           </Link>
           <Text variant="body" className="text-gray-600">
-            Sign in to manage appointments and queues
+            Create your account to get started
           </Text>
         </div>
 
-        {/* Login Card */}
+        {/* Signup Card */}
         <Card padding="lg">
           <Text variant="h3" className="mb-6 text-center">
-            Login
+            Sign Up
           </Text>
 
           {error && (
@@ -108,20 +100,49 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
+              type="text"
+              label="Full Name"
+              value={formData.name}
+              onChange={(e) => handleChange('name', e.target.value)}
+              placeholder="John Doe"
+              required
+              disabled={loading}
+            />
+
+            <Input
               type="email"
               label="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@smartqueue.com"
+              value={formData.email}
+              onChange={(e) => handleChange('email', e.target.value)}
+              placeholder="john@example.com"
               required
+              disabled={loading}
+            />
+
+            <Input
+              type="tel"
+              label="Phone (Optional)"
+              value={formData.phone}
+              onChange={(e) => handleChange('phone', e.target.value)}
+              placeholder="+1 (555) 123-4567"
               disabled={loading}
             />
 
             <Input
               type="password"
               label="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={formData.password}
+              onChange={(e) => handleChange('password', e.target.value)}
+              placeholder="••••••••"
+              required
+              disabled={loading}
+            />
+
+            <Input
+              type="password"
+              label="Confirm Password"
+              value={formData.confirmPassword}
+              onChange={(e) => handleChange('confirmPassword', e.target.value)}
               placeholder="••••••••"
               required
               disabled={loading}
@@ -133,52 +154,18 @@ export default function LoginPage() {
               fullWidth
               isLoading={loading}
             >
-              Sign In
-            </Button>
-
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Or</span>
-              </div>
-            </div>
-
-            <Button
-              type="button"
-              variant="secondary"
-              fullWidth
-              onClick={handleDemoLogin}
-              disabled={loading}
-            >
-              Demo Login (Admin)
+              Create Account
             </Button>
           </form>
 
-          {/* Signup Link */}
+          {/* Login Link */}
           <div className="mt-6 text-center">
             <Text variant="small" className="text-gray-600">
-              Don&apos;t have an account?{' '}
-              <Link href="/signup" className="text-blue-600 hover:text-blue-800 font-medium">
-                Sign Up
+              Already have an account?{' '}
+              <Link href="/login" className="text-blue-600 hover:text-blue-800 font-medium">
+                Sign In
               </Link>
             </Text>
-          </div>
-
-          {/* Demo Credentials */}
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <Text variant="small" className="text-blue-900 font-semibold mb-2">
-              📋 Demo Credentials:
-            </Text>
-            <div className="space-y-1">
-              <Text variant="small" className="text-blue-800">
-                <span className="font-medium">Email:</span> admin@smartqueue.com
-              </Text>
-              <Text variant="small" className="text-blue-800">
-                <span className="font-medium">Password:</span> admin123
-              </Text>
-            </div>
           </div>
         </Card>
 

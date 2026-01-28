@@ -9,7 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { validateOrThrow } from '@/lib/validation/validators/validate';
 import { JoinQueueSchema, ListQueueQuerySchema } from '@/lib/validation/schemas/queue.schema';
 import { RuleEngine } from '@/lib/rules/engine/rule-engine';
-import { requireStaff } from '@/lib/auth/session';
+import { requireAuth, requireStaff } from '@/lib/auth/session';
 import { QueueOperatingHoursRule } from '@/lib/rules/queue/queue-operating-hours.rule';
 import { DuplicateQueueEntryRule } from '@/lib/rules/queue/duplicate-queue-entry.rule';
 import { QueueCapacityRule } from '@/lib/rules/queue/queue-capacity.rule';
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // ============================================
     // STEP 0: Require authentication
     // ============================================
-    // const user = await requireAuth();
+    await requireAuth();
 
     // ============================================
     // STEP 1: Parse and validate request body

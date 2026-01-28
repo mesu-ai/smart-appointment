@@ -194,3 +194,57 @@ export async function seedAdminUser(): Promise<void> {
   await collection.insertOne(adminUser as UserDocument);
   console.log('  ✅ Admin user created (email: admin@smartqueue.com, password: admin123)');
 }
+
+/**
+ * Seed staff users
+ * Seeds staff matching PDF Section 2: Staff & Service Setup
+ */
+export async function seedStaffUsers(): Promise<void> {
+  const collection = await getUsersCollection();
+  
+  const existingStaff = await collection.countDocuments({ role: 'STAFF' });
+  if (existingStaff > 0) {
+    console.log('  ℹ️  Staff users already exist');
+    return;
+  }
+
+  // Default password for all staff (CHANGE IN PRODUCTION!)
+  const bcrypt = require('bcryptjs');
+  const passwordHash = await bcrypt.hash('staff123', 10);
+
+  const staffUsers: Omit<UserDocument, '_id'>[] = [
+    {
+      email: 'riya@smartqueue.com',
+      passwordHash,
+      name: 'Riya Sharma',
+      phone: '+1234567891',
+      role: 'STAFF',
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      email: 'farhan@smartqueue.com',
+      passwordHash,
+      name: 'Farhan Ahmed',
+      phone: '+1234567892',
+      role: 'STAFF',
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      email: 'amit@smartqueue.com',
+      passwordHash,
+      name: 'Amit Patel',
+      phone: '+1234567893',
+      role: 'STAFF',
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  ];
+
+  await collection.insertMany(staffUsers as UserDocument[]);
+  console.log(`  ✅ Seeded ${staffUsers.length} staff users (Riya, Farhan, Amit) - password: staff123`);
+}

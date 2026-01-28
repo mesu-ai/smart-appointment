@@ -107,9 +107,9 @@ export default function ActivityLogPage() {
           </div>
           
           <div className="flex gap-3">
-            <Link href="/admin">
+            <Link href="/dashboard">
               <Button variant="secondary">
-                ← Back to Admin
+                ← Back to Dashboard
               </Button>
             </Link>
             

@@ -15,7 +15,7 @@ const navItems = [
   { href: '/', label: 'Home' },
   { href: '/book', label: 'Book Appointment' },
   { href: '/queue', label: 'Queue Status' },
-  { href: '/admin-new', label: 'Admin' },
+  { href: '/dashboard', label: 'Dashboard' },
 ];
 
 export function NavigationBar() {
