@@ -42,9 +42,6 @@ export function createErrorResponse(
  * Handle errors and return appropriate response
  */
 export function handleError(error: unknown): NextResponse<ErrorResponse> {
-  console.error('API Error:', error);
-
-  // Validation errors (400)
   if (error instanceof ValidationError) {
     return createErrorResponse(
       400,
@@ -55,7 +52,6 @@ export function handleError(error: unknown): NextResponse<ErrorResponse> {
     );
   }
 
-  // Business rule violations (422)
   if (error instanceof BusinessRuleViolationError) {
     return createErrorResponse(
       422,
@@ -67,7 +63,6 @@ export function handleError(error: unknown): NextResponse<ErrorResponse> {
     );
   }
 
-  // Domain invariant violations (409)
   if (error instanceof DomainInvariantViolationError) {
     return createErrorResponse(
       409,
@@ -79,7 +74,6 @@ export function handleError(error: unknown): NextResponse<ErrorResponse> {
     );
   }
 
-  // Resource not found (404)
   if (error instanceof ResourceNotFoundError) {
     return createErrorResponse(
       404,
@@ -91,10 +85,26 @@ export function handleError(error: unknown): NextResponse<ErrorResponse> {
     );
   }
 
-  // Generic errors (500)
+  // For generic errors, extract the most meaningful message
+  let errorMessage = 'An unexpected error occurred';
+  
+  if (error instanceof Error) {
+    errorMessage = error.message;
+    
+    // Check if it's a MongoDB error
+    if (error.name === 'MongoServerError' || error.name === 'MongoError') {
+      errorMessage = 'Database error occurred. Please try again.';
+    }
+    
+    // Check for timeout errors
+    if (error.message.toLowerCase().includes('timeout')) {
+      errorMessage = 'Request timed out. Please try again.';
+    }
+  }
+
   return createErrorResponse(
     500,
     'Internal Server Error',
-    error instanceof Error ? error.message : 'An unexpected error occurred'
+    errorMessage
   );
 }

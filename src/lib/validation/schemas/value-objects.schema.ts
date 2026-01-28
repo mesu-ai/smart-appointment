@@ -18,14 +18,51 @@ export const EmailSchema = z
   .trim();
 
 /**
- * Phone number validation schema (E.164 format)
+ * Phone number validation schema
+ * Accepts Bangladesh phone numbers and normalizes to E.164 format
+ * 
+ * Accepted formats:
+ * - Bangladesh: 01XXXXXXXXX, +8801XXXXXXXXX, 8801XXXXXXXXX
+ * - International E.164: +XXXXXXXXXXXX
  */
 export const PhoneSchema = z
   .string()
-  .regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number format (E.164)')
-  .min(10, 'Phone number must be at least 10 digits')
-  .max(15, 'Phone number must not exceed 15 digits')
-  .trim();
+  .trim()
+  .transform((phone) => {
+    // Remove spaces, dashes, and parentheses
+    const cleaned = phone.replace(/[\s()-]/g, '');
+    
+    // Bangladesh phone number normalization
+    // Valid prefixes: 013, 014, 015, 016, 017, 018, 019
+    const bdPattern = /^((\+?880)|0)?1[3-9]\d{8}$/;
+    
+    if (bdPattern.test(cleaned)) {
+      // Normalize to E.164 format: +8801XXXXXXXXX
+      let normalized = cleaned;
+      
+      // Remove leading 0 if present
+      if (normalized.startsWith('0')) {
+        normalized = normalized.substring(1);
+      }
+      
+      // Remove +880 or 880 prefix if present
+      if (normalized.startsWith('+880')) {
+        normalized = normalized.substring(4);
+      } else if (normalized.startsWith('880')) {
+        normalized = normalized.substring(3);
+      }
+      
+      // Add +880 prefix
+      return `+880${normalized}`;
+    }
+    
+    // Return as-is for international numbers (will be validated next)
+    return cleaned.startsWith('+') ? cleaned : `+${cleaned}`;
+  })
+  .refine(
+    (phone) => /^\+[1-9]\d{7,14}$/.test(phone),
+    'Invalid phone number format (use +880 1XXX-XXXXXX for Bangladesh or international E.164 format)'
+  );
 
 /**
  * Name validation schema

@@ -25,10 +25,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 5 * 60 * 1000, // 5 minutes
-            gcTime: 10 * 60 * 1000, // 10 minutes
+            staleTime: 5 * 60 * 1000,
+            gcTime: 10 * 60 * 1000,
             refetchOnWindowFocus: false,
-            retry: 1,
+            retry: false,
           },
         },
       })
@@ -42,6 +42,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
       >
         <QueryClientProvider client={queryClient}>
           <ToastProvider>

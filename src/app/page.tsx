@@ -25,10 +25,10 @@ export default function Home() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Smart Appointment & Queue Manager
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className=" text-gray-600 max-w-2xl mx-auto">
             Streamline your appointment booking and manage queues efficiently with our intelligent system
           </p>
         </div>
@@ -41,7 +41,7 @@ export default function Home() {
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Book Appointment</h2>
               <p className="text-gray-600">
-                Schedule your appointment with ease. Choose your preferred date, time, and service.
+                Schedule your appointment easily. Choose a date, time, and service.
               </p>
             </div>
           </Link>

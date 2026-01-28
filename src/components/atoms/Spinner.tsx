@@ -1,10 +1,3 @@
-/**
- * Spinner Atom Component
- * 
- * Purpose: Loading indicator
- * Sizes: sm, md, lg
- */
-
 'use client';
 
 export interface SpinnerProps {

@@ -1,10 +1,3 @@
-/**
- * Text Atom Component
- * 
- * Purpose: Typography component with variants
- * Variants: h1, h2, h3, body, small, caption
- */
-
 'use client';
 
 import type { ReactNode, ElementType } from 'react';

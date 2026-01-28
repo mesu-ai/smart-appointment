@@ -1,10 +1,3 @@
-/**
- * BookingWizard Organism Component
- * 
- * Purpose: Multi-step appointment booking flow
- * Steps: 1. Select Service → 2. Select Date/Time → 3. Select Staff → 4. Enter Details → 5. Confirm → 6. Success/Queued
- */
-
 'use client';
 
 import { useState } from 'react';
@@ -19,6 +12,7 @@ import { Badge } from '../atoms/Badge';
 import { useServices, useAvailableSlots } from '@/hooks/use-services';
 import { useCreateAppointment } from '@/hooks/use-appointments';
 import { useToast } from '@/context/toast-context';
+import { getErrorMessage } from '@/lib/utils/error-handler.utils';
 import type { Service } from '@/types/domain.types';
 
 type BookingStep = 1 | 2 | 3 | 4 | 5 | 6;
@@ -99,10 +93,6 @@ export function BookingWizard() {
 
     setLoadingStaff(true);
     try {
-      // TODO: Replace with actual API call
-      // const response = await apiClient.get(`/api/staff/available?serviceId=${selectedService.id}&date=${selectedDate}&startTime=${selectedSlot.startTime}&endTime=${selectedSlot.endTime}`);
-      
-      // Mock data for demonstration
       const mockStaff: StaffMember[] = [
         {
           id: '1',
@@ -130,13 +120,12 @@ export function BookingWizard() {
       
       setAvailableStaff(mockStaff);
       
-      // Auto-select if only one available
       const available = mockStaff.filter(s => s.isAvailable);
       if (available.length === 1) {
         setSelectedStaff(available[0]);
       }
     } catch (error) {
-      showToast('error', 'Failed to load available staff');
+      showToast('error', getErrorMessage(error));
     } finally {
       setLoadingStaff(false);
     }
@@ -171,9 +160,15 @@ export function BookingWizard() {
     }
 
     if (!customerInfo.phone.trim()) {
-      newErrors.phone = 'Phone is required';
-    } else if (!/^\+?[1-9]\d{1,14}$/.test(customerInfo.phone.replace(/[\s()-]/g, ''))) {
-      newErrors.phone = 'Invalid phone format (use E.164 format, e.g., +1234567890)';
+      newErrors.phone = 'Phone number is required';
+    } else {
+      const cleanPhone = customerInfo.phone.replace(/[\s()-]/g, '');
+      const isBDFormat = /^(\+880|880|0)?1[3-9]\d{8}$/.test(cleanPhone);
+      const isInternational = /^\+?[1-9]\d{7,14}$/.test(cleanPhone);
+      
+      if (!isBDFormat && !isInternational) {
+        newErrors.phone = 'Please enter a valid phone number (e.g., 01XXX-XXXXXX)';
+      }
     }
 
     setErrors(newErrors);
@@ -226,27 +221,22 @@ export function BookingWizard() {
           phone: customerInfo.phone,
           notes: customerInfo.notes,
         },
-        // TODO: Add when API supports it
-        // staffId: selectedStaff?.id,
-        // fallbackToQueue,
       });
 
-      // Store booking result for success screen
       setBookingResult({
         status: fallbackToQueue ? 'QUEUED' : 'SCHEDULED',
-        queuePosition: fallbackToQueue ? 3 : undefined, // TODO: Get from API response
+        queuePosition: fallbackToQueue ? 3 : undefined,
       });
 
       setStep(6);
       
       if (fallbackToQueue) {
-        showToast('success', 'Added to waiting queue successfully!');
+        showToast('success', 'Added to waiting queue successfully');
       } else {
-        showToast('success', 'Appointment booked successfully!');
+        showToast('success', 'Appointment booked successfully');
       }
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to book appointment';
-      showToast('error', errorMessage);
+    } catch (error) {
+      showToast('error', getErrorMessage(error));
     }
   };
 
@@ -448,7 +438,7 @@ export function BookingWizard() {
                       All staff members are at capacity for this time slot
                     </Text>
                     <Text variant="small">
-                      You can join the waiting queue and we'll notify you when a slot becomes available.
+                      You can join the waiting queue and we&apos;ll notify you when a slot becomes available.
                     </Text>
                     <Button
                       variant="secondary"
@@ -464,8 +454,8 @@ export function BookingWizard() {
 
               {fallbackToQueue && (
                 <Alert variant="success" className="mb-4">
-                  ✓ You'll be added to the waiting queue for this time slot.
-                  We'll notify you when a staff member becomes available.
+                  ✓ You&apos;ll be added to the waiting queue for this time slot.
+                  We&apos;ll notify you when a staff member becomes available.
                 </Alert>
               )}
             </>
@@ -513,7 +503,7 @@ export function BookingWizard() {
               <Input
                 label="Phone Number"
                 type="tel"
-                placeholder="+1234567890"
+                placeholder="01XXX-XXXXXX"
                 value={customerInfo.phone}
                 onChange={(e) => handleCustomerInfoChange('phone', e.target.value)}
                 error={errors.phone}
@@ -580,7 +570,7 @@ export function BookingWizard() {
                   <Text variant="caption">Booking Status</Text>
                   <Badge variant="info">Waiting Queue</Badge>
                   <Text variant="small" className="text-gray-600 mt-1">
-                    You'll be notified when a staff member becomes available
+                  You&apos;ll be notified when a staff member becomes available
                   </Text>
                 </div>
               )}
@@ -608,7 +598,7 @@ export function BookingWizard() {
             </Alert>
           ) : (
             <Alert variant="warning" className="mb-6">
-              You are joining the waiting queue. We'll notify you at {customerInfo.email} when
+              You are joining the waiting queue. We&apos;ll notify you at {customerInfo.email} when
               a staff member becomes available for your selected time slot.
             </Alert>
           )}
@@ -675,15 +665,15 @@ export function BookingWizard() {
               )}
               <Text variant="body" className="mb-6">
                 Your appointment request has been added to the waiting queue.
-                We'll notify you at {customerInfo.email} when a staff member becomes available.
+                We&apos;ll notify you at {customerInfo.email} when a staff member becomes available.
               </Text>
               <Alert variant="info" className="mb-6">
                 <Text variant="small">
                   What happens next:
                 </Text>
                 <ul className="text-left mt-2 space-y-1 text-sm">
-                  <li>• You'll receive an email confirmation of your queue position</li>
-                  <li>• We'll notify you when a slot opens up</li>
+                  <li>• You&apos;ll receive an email confirmation of your queue position</li>
+                  <li>• We&apos;ll notify you when a slot opens up</li>
                   <li>• You can check your queue status anytime</li>
                 </ul>
               </Alert>

@@ -1,10 +1,3 @@
-/**
- * ServiceSelector Organism Component
- * 
- * Purpose: Service selection step in booking flow
- * Combines: Multiple ServiceCards + Grid layout
- */
-
 'use client';
 
 import { ServiceCard } from '../molecules/ServiceCard';

@@ -1,10 +1,3 @@
-/**
- * AppointmentList Organism Component
- * 
- * Purpose: Display list of appointments with filtering
- * Combines: Multiple AppointmentCards + EmptyState + Spinner
- */
-
 'use client';
 
 import { AppointmentCard } from '../molecules/AppointmentCard';

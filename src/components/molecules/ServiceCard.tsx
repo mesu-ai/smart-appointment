@@ -1,10 +1,3 @@
-/**
- * ServiceCard Molecule Component
- * 
- * Purpose: Display service information
- * Combines: Card + Text + Badge
- */
-
 'use client';
 
 import { Card } from './Card';

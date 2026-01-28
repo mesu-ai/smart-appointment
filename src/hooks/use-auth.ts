@@ -1,9 +1,3 @@
-/**
- * Client-side Authentication Hook
- * 
- * Provides authentication state and utilities for client components
- */
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -58,10 +52,11 @@ export function useAuth() {
   const logout = async () => {
     try {
       await apiClient.delete('/api/auth');
+    } catch {
+      // Ignore error, proceed with logout anyway
+    } finally {
       setState({ user: null, loading: false, error: null });
       window.location.href = '/login';
-    } catch (error) {
-      console.error('Logout failed:', error);
     }
   };
 

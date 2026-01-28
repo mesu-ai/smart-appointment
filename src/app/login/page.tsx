@@ -1,53 +1,46 @@
-/**
- * Login Page
- * 
- * Purpose: User authentication with email/password
- */
+"use client";
 
-'use client';
-
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/atoms/Button';
-import { Input } from '@/components/atoms/Input';
-import { Text } from '@/components/atoms/Text';
-import { Card } from '@/components/molecules/Card';
-import { Alert } from '@/components/molecules/Alert';
-import { apiClient } from '@/lib/api/client';
-import { Calendar } from 'lucide-react';
-import Link from 'next/link';
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/atoms/Button";
+import { Input } from "@/components/atoms/Input";
+import { Text } from "@/components/atoms/Text";
+import { Card } from "@/components/molecules/Card";
+import { Alert } from "@/components/molecules/Alert";
+import { apiClient } from "@/lib/api/client";
+import { getErrorMessage } from "@/lib/utils/error-handler.utils";
+import { Calendar } from "lucide-react";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleDemoLogin = async () => {
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
       const response = await apiClient.post<{ user: any; message: string }>(
-        '/api/auth',
-        { 
-          email: 'admin@smartqueue.com', 
-          password: 'admin123' 
-        }
+        "/api/auth",
+        {
+          email: "admin@smartqueue.com",
+          password: "admin123",
+        },
       );
 
-      // Redirect based on role
-      if (response.user.role === 'ADMIN' || response.user.role === 'STAFF') {
-        router.push('/dashboard');
+      if (response.user.role === "ADMIN" || response.user.role === "STAFF") {
+        router.push("/dashboard");
       } else {
-        router.push('/');
+        router.push("/");
       }
-      
-      // Force page reload to update navigation
+
       window.location.reload();
-    } catch (err: any) {
-      setError(err.message || 'Demo login failed. Please run database seeding.');
+    } catch (err) {
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -55,39 +48,39 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
       const response = await apiClient.post<{ user: any; message: string }>(
-        '/api/auth',
-        { email, password }
+        "/api/auth",
+        { email, password },
       );
 
-      // Redirect based on role
-      if (response.user.role === 'ADMIN' || response.user.role === 'STAFF') {
-        router.push('/dashboard');
+      if (response.user.role === "ADMIN" || response.user.role === "STAFF") {
+        router.push("/dashboard");
       } else {
-        router.push('/');
+        router.push("/");
       }
-      
-      // Force page reload to update navigation
+
       window.location.reload();
-    } catch (err: any) {
-      setError(err.message || 'Invalid email or password');
+    } catch (err) {
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-4">
             <Calendar className="w-10 h-10 text-blue-600" />
-            <Text variant="h2" className="text-gray-900">SmartQueue</Text>
+            <Text variant="h2" className="text-gray-900">
+              SmartQueue
+            </Text>
           </Link>
           <Text variant="body" className="text-gray-600">
             Sign in to manage appointments and queues
@@ -159,8 +152,11 @@ export default function LoginPage() {
           {/* Signup Link */}
           <div className="mt-6 text-center">
             <Text variant="small" className="text-gray-600">
-              Don&apos;t have an account?{' '}
-              <Link href="/signup" className="text-blue-600 hover:text-blue-800 font-medium">
+              Don&apos;t have an account?{" "}
+              <Link
+                href="/signup"
+                className="text-blue-600 hover:text-blue-800 font-medium"
+              >
                 Sign Up
               </Link>
             </Text>

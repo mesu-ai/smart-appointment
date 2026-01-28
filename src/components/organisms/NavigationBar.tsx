@@ -1,10 +1,3 @@
-/**
- * NavigationBar Organism Component
- * 
- * Purpose: Main navigation menu
- * Combines: Links + Logo
- */
-
 'use client';
 
 import Link from 'next/link';

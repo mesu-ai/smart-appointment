@@ -1,11 +1,3 @@
-/**
- * Button Atom Component
- * 
- * Purpose: Reusable button with variants and states
- * Variants: primary, secondary, danger, ghost
- * Sizes: sm, md, lg
- */
-
 'use client';
 
 import React from 'react';

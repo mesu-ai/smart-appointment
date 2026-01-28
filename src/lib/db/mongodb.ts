@@ -25,8 +25,10 @@ const options: MongoClientOptions = {
   maxPoolSize: 10,
   minPoolSize: 2,
   maxIdleTimeMS: 30000,
-  serverSelectionTimeoutMS: 5000,
+  serverSelectionTimeoutMS: 10000,
   socketTimeoutMS: 45000,
+  family: 4, // Force IPv4 to avoid IPv6 SSL issues
+  tls: true,
 };
 
 /**
@@ -45,9 +47,16 @@ export async function connectToDatabase(): Promise<MongoDBConnection> {
   const MONGODB_URI = process.env.MONGODB_URI;
   const MONGODB_DB_NAME = process.env.MONGODB_DB_NAME;
 
-  // Return cached connection in production
+  // Return cached connection if available
   if (cachedConnection) {
-    return cachedConnection;
+    try {
+      // Verify connection is still alive
+      await cachedConnection.client.db().admin().ping();
+      return cachedConnection;
+    } catch {
+      // Connection died, clear cache and reconnect
+      cachedConnection = null;
+    }
   }
 
   try {
@@ -59,17 +68,42 @@ export async function connectToDatabase(): Promise<MongoDBConnection> {
       db,
     };
 
-    // Cache connection in production only
-    if (process.env.NODE_ENV === 'production') {
-      cachedConnection = connection;
-    }
-
-    console.log(`✅ Connected to MongoDB: ${MONGODB_DB_NAME}`);
+    cachedConnection = connection;
 
     return connection;
   } catch (error) {
-    console.error('❌ MongoDB connection error:', error);
-    throw new Error('Failed to connect to MongoDB');
+    cachedConnection = null;
+    
+    // Log the actual error for debugging
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[MongoDB] Connection failed:', error);
+    }
+    
+    if (error instanceof Error) {
+      const errorMessage = error.message;
+      
+      if (errorMessage.includes('ENOTFOUND') || errorMessage.includes('ETIMEDOUT')) {
+        throw new Error('Unable to reach MongoDB server. Please check your internet connection.');
+      }
+      
+      if (errorMessage.includes('Authentication failed') || errorMessage.includes('auth failed')) {
+        throw new Error('MongoDB authentication failed. Please check credentials in .env.local');
+      }
+      
+      if (errorMessage.includes('SSL') || errorMessage.includes('TLS') || errorMessage.includes('certificate')) {
+        // Pass through the actual error for debugging
+        throw new Error(`MongoDB SSL/TLS error: ${errorMessage}`);
+      }
+      
+      if (errorMessage.includes('MongoServerError')) {
+        throw new Error(`MongoDB server error: ${errorMessage}`);
+      }
+      
+      // Return actual error message for better debugging
+      throw new Error(`MongoDB connection failed: ${errorMessage}`);
+    }
+    
+    throw new Error('Failed to connect to MongoDB. Unknown error occurred.');
   }
 }
 
@@ -88,7 +122,6 @@ export async function closeConnection(): Promise<void> {
   if (cachedConnection) {
     await cachedConnection.client.close();
     cachedConnection = null;
-    console.log('🔌 MongoDB connection closed');
   }
 }
 

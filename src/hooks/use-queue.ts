@@ -1,9 +1,3 @@
-/**
- * Queue Hooks
- * 
- * React Query hooks for queue management.
- */
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api/client';
 import { QUERY_KEYS } from '@/config/react-query.config';

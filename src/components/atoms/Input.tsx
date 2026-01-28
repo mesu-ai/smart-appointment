@@ -1,10 +1,3 @@
-/**
- * Input Atom Component
- * 
- * Purpose: Reusable text input with error state
- * Types: text, email, tel, date, time
- */
-
 'use client';
 
 import React from 'react';

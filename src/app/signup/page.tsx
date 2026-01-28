@@ -1,9 +1,3 @@
-/**
- * Signup Page
- * 
- * Purpose: User registration with email/password
- */
-
 'use client';
 
 import React, { useState } from 'react';
@@ -14,6 +8,7 @@ import { Text } from '@/components/atoms/Text';
 import { Card } from '@/components/molecules/Card';
 import { Alert } from '@/components/molecules/Alert';
 import { apiClient } from '@/lib/api/client';
+import { getErrorMessage } from '@/lib/utils/error-handler.utils';
 import { Calendar } from 'lucide-react';
 import Link from 'next/link';
 
@@ -37,7 +32,6 @@ export default function SignupPage() {
     e.preventDefault();
     setError('');
 
-    // Validate password confirmation
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -56,17 +50,15 @@ export default function SignupPage() {
         }
       );
 
-      // Redirect based on role (new users are customers, redirect to booking)
       if (response.user.role === 'ADMIN' || response.user.role === 'STAFF') {
         router.push('/dashboard');
       } else {
         router.push('/book');
       }
       
-      // Force page reload to update navigation
       window.location.reload();
-    } catch (err: any) {
-      setError(err.message || 'Failed to create account');
+    } catch (err) {
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }

@@ -1,10 +1,3 @@
-/**
- * TimeSlotPicker Organism Component
- * 
- * Purpose: Time slot selection step in booking flow
- * Combines: Multiple TimeSlotButtons + Date selector
- */
-
 'use client';
 
 import { TimeSlotButton, type TimeSlot } from '../molecules/TimeSlotButton';

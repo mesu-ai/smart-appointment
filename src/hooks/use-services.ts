@@ -1,9 +1,3 @@
-/**
- * Services Hooks
- * 
- * React Query hooks for service catalog.
- */
-
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api/client';
 import { QUERY_KEYS } from '@/config/react-query.config';

@@ -1,13 +1,5 @@
-/**
- * API Client Configuration
- * 
- * Axios-like fetch wrapper with error handling.
- */
-
 import type { ErrorResponse } from '@/types/error.types';
 
-// Use relative URLs for same-origin requests (no CORS issues)
-// Only set NEXT_PUBLIC_API_URL if API is on different domain
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 export class ApiError extends Error {
@@ -15,71 +7,113 @@ export class ApiError extends Error {
     public statusCode: number,
     public errorCode?: string,
     public errors?: Array<{ field: string; message: string }>,
-    public metadata?: Record<string, unknown>
+    public metadata?: Record<string, unknown>,
+    message?: string
   ) {
-    super('API Error');
+    super(message || 'An error occurred');
     this.name = 'ApiError';
   }
 }
 
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
-    const errorData: ErrorResponse = await response.json();
+    let errorData: ErrorResponse;
+    
+    try {
+      errorData = await response.json();
+    } catch {
+      throw new ApiError(
+        response.status,
+        undefined,
+        undefined,
+        { statusText: response.statusText },
+        response.statusText || 'Request failed'
+      );
+    }
+    
     throw new ApiError(
       errorData.statusCode,
       errorData.errorCode,
       errorData.errors,
-      errorData.metadata
+      errorData.metadata,
+      errorData.message
     );
   }
 
   return response.json();
 }
 
+async function makeFetchRequest<T>(
+  endpoint: string,
+  options: RequestInit
+): Promise<T> {
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...options,
+      credentials: 'same-origin',
+    });
+    return handleResponse<T>(response);
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    
+    if (error instanceof TypeError) {
+      throw new ApiError(
+        0,
+        'NETWORK_ERROR',
+        undefined,
+        { originalError: error.message },
+        'Network error. Please check your connection.'
+      );
+    }
+    
+    throw new ApiError(
+      500,
+      'UNKNOWN_ERROR',
+      undefined,
+      { originalError: error instanceof Error ? error.message : 'Unknown error' },
+      'Something went wrong. Please try again.'
+    );
+  }
+}
+
 export const apiClient = {
   async get<T>(endpoint: string): Promise<T> {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    return makeFetchRequest<T>(endpoint, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
-      credentials: 'same-origin',
     });
-    return handleResponse<T>(response);
   },
 
   async post<T>(endpoint: string, data?: unknown): Promise<T> {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    return makeFetchRequest<T>(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      credentials: 'same-origin',
       body: data ? JSON.stringify(data) : undefined,
     });
-    return handleResponse<T>(response);
   },
 
   async patch<T>(endpoint: string, data: unknown): Promise<T> {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    return makeFetchRequest<T>(endpoint, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
       },
-      credentials: 'same-origin',
       body: JSON.stringify(data),
     });
-    return handleResponse<T>(response);
   },
 
   async delete<T>(endpoint: string): Promise<T> {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    return makeFetchRequest<T>(endpoint, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
       },
-      credentials: 'same-origin',
     });
-    return handleResponse<T>(response);
   },
 };

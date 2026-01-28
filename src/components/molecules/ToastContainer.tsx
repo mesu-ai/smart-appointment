@@ -1,10 +1,3 @@
-/**
- * ToastContainer Molecule Component
- * 
- * Purpose: Display toast notifications
- * Uses: Toast context for state management
- */
-
 'use client';
 
 import { useToast } from '@/context/toast-context';
