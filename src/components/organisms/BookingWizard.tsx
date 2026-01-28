@@ -7,9 +7,9 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ServiceSelector } from './ServiceSelector';
-import { TimeSlotPicker, type TimeSlot } from '../organisms/TimeSlotPicker';
+import { TimeSlotPicker } from '../organisms/TimeSlotPicker';
 import { Input } from '../atoms/Input';
 import { Button } from '../atoms/Button';
 import { Text } from '../atoms/Text';
@@ -22,6 +22,12 @@ import { useToast } from '@/context/toast-context';
 import type { Service } from '@/types/domain.types';
 
 type BookingStep = 1 | 2 | 3 | 4 | 5;
+
+interface TimeSlot {
+  startTime: string;
+  endTime: string;
+  available: boolean;
+}
 
 interface CustomerInfo {
   name: string;
@@ -49,10 +55,7 @@ export function BookingWizard() {
 
   const { data: slotsData, isLoading: slotsLoading } = useAvailableSlots(
     selectedService?.id || '',
-    selectedDate,
-    {
-      enabled: !!selectedService && !!selectedDate,
-    }
+    selectedDate
   );
   const slots = slotsData?.slots || [];
 
@@ -125,22 +128,24 @@ export function BookingWizard() {
     try {
       await createAppointmentMutation.mutateAsync({
         serviceId: selectedService.id,
+        date: selectedDate,
         timeSlot: {
-          start: `${selectedDate}T${selectedSlot.start}:00`,
-          end: `${selectedDate}T${selectedSlot.end}:00`,
+          startTime: selectedSlot.startTime,
+          endTime: selectedSlot.endTime,
         },
-        customer: {
+        customerInfo: {
           name: customerInfo.name,
           email: customerInfo.email,
           phone: customerInfo.phone,
+          notes: customerInfo.notes,
         },
-        notes: customerInfo.notes,
       });
 
       setStep(5);
       showToast('success', 'Appointment booked successfully!');
-    } catch (error: any) {
-      showToast('error', error.message || 'Failed to book appointment');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to book appointment';
+      showToast('error', errorMessage);
     }
   };
 
@@ -217,7 +222,6 @@ export function BookingWizard() {
             </div>
           </Card>
           <TimeSlotPicker
-            serviceId={selectedService.id}
             selectedDate={selectedDate}
             selectedSlot={selectedSlot}
             onDateChange={handleDateChange}
@@ -320,7 +324,7 @@ export function BookingWizard() {
                   })}
                 </Text>
                 <Text variant="body">
-                  {selectedSlot.start} - {selectedSlot.end}
+                  {selectedSlot.startTime} - {selectedSlot.endTime}
                 </Text>
               </div>
               <div>

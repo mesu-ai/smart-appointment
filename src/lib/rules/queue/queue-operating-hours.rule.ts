@@ -9,14 +9,14 @@
  * - Saturday: 10:00 AM - 2:00 PM
  */
 
-import type { Rule, RuleResult } from '../../engine/rule.interface';
+import type { Rule, RuleResult } from '../engine/rule.interface';
 import type { QueueJoinContext } from './queue-capacity.rule';
 
 export class QueueOperatingHoursRule implements Rule<QueueJoinContext> {
   name = 'QueueOperatingHoursRule';
   priority = 1;
 
-  async validate(context: QueueJoinContext): Promise<RuleResult> {
+  async validate(_context: QueueJoinContext): Promise<RuleResult> {
     const now = new Date();
     const dayOfWeek = now.getDay();
     const hour = now.getHours();

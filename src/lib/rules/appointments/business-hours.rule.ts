@@ -9,7 +9,7 @@
  * - Saturday: 10:00 AM - 2:00 PM
  */
 
-import type { Rule, RuleResult } from '../../engine/rule.interface';
+import type { Rule, RuleResult } from '../engine/rule.interface';
 
 export interface AppointmentBookingContext {
   serviceId: string;

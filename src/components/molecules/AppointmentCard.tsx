@@ -7,7 +7,6 @@
 
 'use client';
 
-import React from 'react';
 import { Card } from './Card';
 import { Text } from '../atoms/Text';
 import { Badge } from '../atoms/Badge';
@@ -43,10 +42,10 @@ export function AppointmentCard({
       <div className="flex items-start justify-between mb-3">
         <div>
           <Text variant="h3" className="mb-1">
-            {appointment.service.name}
+            {appointment.serviceName}
           </Text>
           <Text variant="small" className="text-gray-500">
-            {new Date(appointment.timeSlot.start).toLocaleDateString('en-US', {
+            {new Date(appointment.date).toLocaleDateString('en-US', {
               weekday: 'long',
               year: 'numeric',
               month: 'long',
@@ -75,7 +74,7 @@ export function AppointmentCard({
             />
           </svg>
           <Text variant="small">
-            {appointment.timeSlot.start} - {appointment.timeSlot.end}
+            {appointment.timeSlot.startTime} - {appointment.timeSlot.endTime}
           </Text>
         </div>
 
@@ -93,7 +92,7 @@ export function AppointmentCard({
               d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
             />
           </svg>
-          <Text variant="small">{appointment.customer.name}</Text>
+          <Text variant="small">{appointment.customerInfo.name}</Text>
         </div>
 
         <div className="flex items-center text-sm">
@@ -110,7 +109,7 @@ export function AppointmentCard({
               d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
             />
           </svg>
-          <Text variant="small">{appointment.customer.email}</Text>
+          <Text variant="small">{appointment.customerInfo.email}</Text>
         </div>
       </div>
 

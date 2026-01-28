@@ -7,7 +7,6 @@
 
 'use client';
 
-import React from 'react';
 import { Card } from './Card';
 import { Text } from '../atoms/Text';
 import { Badge } from '../atoms/Badge';
@@ -23,8 +22,7 @@ const statusVariants: Record<string, 'success' | 'warning' | 'error' | 'info' | 
   CALLED: 'warning',
   IN_SERVICE: 'success',
   COMPLETED: 'success',
-  NO_SHOW: 'error',
-  LEFT: 'neutral',
+  CANCELLED: 'error',
 };
 
 const priorityVariants: Record<string, 'success' | 'warning' | 'error' | 'info' | 'neutral'> = {
@@ -42,7 +40,7 @@ export function QueueCard({ entry, showService = true }: QueueCardProps) {
           </Text>
           {showService && (
             <Text variant="small" className="text-gray-500">
-              {entry.service.name}
+              {entry.serviceName}
             </Text>
           )}
         </div>
@@ -71,7 +69,7 @@ export function QueueCard({ entry, showService = true }: QueueCardProps) {
               d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
             />
           </svg>
-          <Text variant="small">{entry.customer.name}</Text>
+          <Text variant="small">{entry.customerInfo.name}</Text>
         </div>
 
         <div className="flex items-center text-sm">

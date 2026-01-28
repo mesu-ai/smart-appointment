@@ -7,7 +7,6 @@
 
 'use client';
 
-import React from 'react';
 import { QueueCard } from '../molecules/QueueCard';
 import { EmptyState } from '../molecules/EmptyState';
 import { Spinner } from '../atoms/Spinner';

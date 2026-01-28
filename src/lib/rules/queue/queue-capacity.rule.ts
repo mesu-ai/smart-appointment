@@ -4,7 +4,7 @@
  * Validates that the queue has not reached its maximum size.
  */
 
-import type { Rule, RuleResult } from '../../engine/rule.interface';
+import type { Rule, RuleResult } from '../engine/rule.interface';
 import { findServiceById } from '@/lib/db/models/service.model';
 import { countActiveQueueEntries } from '@/lib/db/models/queue-entry.model';
 

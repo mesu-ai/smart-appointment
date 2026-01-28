@@ -7,7 +7,6 @@
 
 'use client';
 
-import React from 'react';
 import { useToast } from '@/context/toast-context';
 
 export function ToastContainer() {

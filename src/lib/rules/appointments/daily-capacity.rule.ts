@@ -4,7 +4,7 @@
  * Validates that the daily appointment limit for a service has not been reached.
  */
 
-import type { Rule, RuleResult } from '../../engine/rule.interface';
+import type { Rule, RuleResult } from '../engine/rule.interface';
 import type { AppointmentBookingContext } from './business-hours.rule';
 import { findServiceById } from '@/lib/db/models/service.model';
 import { countAppointments } from '@/lib/db/models/appointment.model';

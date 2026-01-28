@@ -104,7 +104,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: error.errors[0].message },
+        { error: error.errors[0]?.message || 'Validation error' },
         { status: 400 }
       );
     }

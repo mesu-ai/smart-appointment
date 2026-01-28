@@ -6,7 +6,7 @@
  * - No more than 90 days in advance
  */
 
-import type { Rule, RuleResult } from '../../engine/rule.interface';
+import type { Rule, RuleResult } from '../engine/rule.interface';
 import type { AppointmentBookingContext } from './business-hours.rule';
 
 export class AdvanceBookingRule implements Rule<AppointmentBookingContext> {

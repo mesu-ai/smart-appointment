@@ -4,7 +4,7 @@
  * MongoDB model for audit log tracking.
  */
 
-import { Collection, ObjectId, Filter } from 'mongodb';
+import { Collection, Filter } from 'mongodb';
 import { getDb } from '../mongodb';
 import { COLLECTIONS } from '../collections';
 import type { AuditLogDocument, AuditAction } from '@/types/database.types';

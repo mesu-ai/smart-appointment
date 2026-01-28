@@ -14,17 +14,6 @@
 
 import { Db, MongoClient, MongoClientOptions } from 'mongodb';
 
-if (!process.env.MONGODB_URI) {
-  throw new Error('Please define MONGODB_URI in .env.local');
-}
-
-if (!process.env.MONGODB_DB_NAME) {
-  throw new Error('Please define MONGODB_DB_NAME in .env.local');
-}
-
-const MONGODB_URI = process.env.MONGODB_URI;
-const MONGODB_DB_NAME = process.env.MONGODB_DB_NAME;
-
 interface MongoDBConnection {
   client: MongoClient;
   db: Db;
@@ -44,6 +33,18 @@ const options: MongoClientOptions = {
  * Connect to MongoDB and return database instance
  */
 export async function connectToDatabase(): Promise<MongoDBConnection> {
+  // Validate environment variables (lazy - only when connection is attempted)
+  if (!process.env.MONGODB_URI) {
+    throw new Error('Please define MONGODB_URI in .env.local');
+  }
+
+  if (!process.env.MONGODB_DB_NAME) {
+    throw new Error('Please define MONGODB_DB_NAME in .env.local');
+  }
+
+  const MONGODB_URI = process.env.MONGODB_URI;
+  const MONGODB_DB_NAME = process.env.MONGODB_DB_NAME;
+
   // Return cached connection in production
   if (cachedConnection) {
     return cachedConnection;

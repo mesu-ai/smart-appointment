@@ -7,7 +7,6 @@
 
 'use client';
 
-import React from 'react';
 import { AppointmentCard } from '../molecules/AppointmentCard';
 import { EmptyState } from '../molecules/EmptyState';
 import { Spinner } from '../atoms/Spinner';

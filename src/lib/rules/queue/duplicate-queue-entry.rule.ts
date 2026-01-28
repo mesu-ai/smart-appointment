@@ -4,7 +4,7 @@
  * Prevents customers from joining the same queue multiple times.
  */
 
-import type { Rule, RuleResult } from '../../engine/rule.interface';
+import type { Rule, RuleResult } from '../engine/rule.interface';
 import type { QueueJoinContext } from './queue-capacity.rule';
 import { isCustomerInQueue } from '@/lib/db/models/queue-entry.model';
 

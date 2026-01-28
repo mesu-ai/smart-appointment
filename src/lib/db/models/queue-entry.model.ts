@@ -132,16 +132,18 @@ export async function updateQueueEntryStatus(
   id: string,
   status: QueueStatus
 ): Promise<QueueEntry | null> {
-  const updates: UpdateFilter<QueueEntryDocument> = {
-    $set: { status },
-  };
+  const setFields: Partial<QueueEntryDocument> = { status };
 
   // Set timestamp fields based on status
   if (status === 'CALLED') {
-    updates.$set!.calledAt = new Date();
+    setFields.calledAt = new Date();
   } else if (status === 'COMPLETED') {
-    updates.$set!.completedAt = new Date();
+    setFields.completedAt = new Date();
   }
+
+  const updates: UpdateFilter<QueueEntryDocument> = {
+    $set: setFields,
+  };
 
   return updateQueueEntry(id, updates);
 }

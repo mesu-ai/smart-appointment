@@ -7,7 +7,6 @@
 import { z } from 'zod';
 import {
   UuidSchema,
-  NotesSchema,
 } from './value-objects.schema';
 import { CustomerInfoSchema } from './appointment.schema';
 

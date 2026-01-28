@@ -7,13 +7,13 @@
 
 'use client';
 
-import React from 'react';
+import type { ReactNode, ElementType } from 'react';
 
 export interface TextProps {
   variant?: 'h1' | 'h2' | 'h3' | 'body' | 'small' | 'caption';
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
-  as?: keyof JSX.IntrinsicElements;
+  as?: ElementType;
 }
 
 export function Text({ variant = 'body', children, className = '', as }: TextProps) {
@@ -26,7 +26,7 @@ export function Text({ variant = 'body', children, className = '', as }: TextPro
     caption: 'text-xs text-gray-500',
   };
 
-  const defaultTags = {
+  const defaultTags: Record<string, ElementType> = {
     h1: 'h1',
     h2: 'h2',
     h3: 'h3',
@@ -35,7 +35,7 @@ export function Text({ variant = 'body', children, className = '', as }: TextPro
     caption: 'span',
   };
 
-  const Component = (as || defaultTags[variant]) as keyof JSX.IntrinsicElements;
+  const Component = (as || defaultTags[variant]) as ElementType;
 
   return (
     <Component className={`${variantStyles[variant]} ${className}`}>

@@ -5,7 +5,7 @@
  * Checks for overlapping appointments.
  */
 
-import type { Rule, RuleResult } from '../../engine/rule.interface';
+import type { Rule, RuleResult } from '../engine/rule.interface';
 import type { AppointmentBookingContext } from './business-hours.rule';
 import { isTimeSlotAvailable } from '@/lib/db/models/appointment.model';
 

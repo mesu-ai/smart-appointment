@@ -7,7 +7,6 @@
 
 'use client';
 
-import React, { useState } from 'react';
 import { TimeSlotButton, type TimeSlot } from '../molecules/TimeSlotButton';
 import { Input } from '../atoms/Input';
 import { Text } from '../atoms/Text';
@@ -15,7 +14,6 @@ import { Spinner } from '../atoms/Spinner';
 import { EmptyState } from '../molecules/EmptyState';
 
 export interface TimeSlotPickerProps {
-  serviceId: string;
   selectedDate: string;
   selectedSlot?: TimeSlot;
   onDateChange: (date: string) => void;
@@ -25,7 +23,6 @@ export interface TimeSlotPickerProps {
 }
 
 export function TimeSlotPicker({
-  serviceId,
   selectedDate,
   selectedSlot,
   onDateChange,
@@ -73,11 +70,11 @@ export function TimeSlotPicker({
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {slots.map((slot) => (
                 <TimeSlotButton
-                  key={`${slot.start}-${slot.end}`}
+                  key={`${slot.startTime}-${slot.endTime}`}
                   slot={slot}
                   selected={
-                    selectedSlot?.start === slot.start &&
-                    selectedSlot?.end === slot.end
+                    selectedSlot?.startTime === slot.startTime &&
+                    selectedSlot?.endTime === slot.endTime
                   }
                   onSelect={onSlotSelect}
                 />

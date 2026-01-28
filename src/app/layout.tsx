@@ -7,6 +7,7 @@ import { ToastProvider } from "@/context/toast-context";
 import { ToastContainer } from "@/components/molecules/ToastContainer";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
+import type { ReactNode } from 'react';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,7 +19,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
